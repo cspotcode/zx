@@ -19,7 +19,7 @@ import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './index.mjs'
+import {$, fetch, ProcessOutput, argv} from './import.mjs'
 
 import './globals.mjs'
 

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
+import path from 'path'
+import {glob} from './import.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -163,6 +165,7 @@ import {strict as assert} from 'assert'
   assert(typeof globby.isDynamicPattern === 'function')
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
+  deepEqual(await globby('*.mjs'), ['import.mjs', 'index.mjs', 'test.mjs', 'zx.mjs'])
   console.log(chalk.greenBright('globby available'))
 }
 

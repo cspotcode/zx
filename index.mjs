@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
-import * as globbyModule from 'globby'
 import os from 'os'
 import path from 'path'
 import {promisify, inspect} from 'util'
@@ -25,13 +24,24 @@ import chalk from 'chalk'
 import YAML from 'yaml'
 import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
+import asyncDeps from './async-deps.js'
 
 export {chalk, fs, os, path, YAML}
 export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
-export const globby = Object.assign(function globby(...args) {
+
+export const globby = Object.assign(async function globby(...args) {
+  const {globbyModule} = await asyncDeps
   return globbyModule.globby(...args)
-}, globbyModule)
+}, {
+  then(...args) {
+    return asyncInit.then(() => {delete globby.then; return globby}).then(...args)
+  }
+})
+const asyncInit = asyncDeps.then(({globbyModule}) => {
+  Object.assign(globby, globbyModule)
+})
+
 export const glob = globby
 const psTree = promisify(psTreeModule)
 
