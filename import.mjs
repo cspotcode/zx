@@ -1,5 +1,4 @@
 import * as lib from './index.js' 
-await lib.globby
 const {
   chalk, fs,
   argv, globby,
@@ -10,7 +9,8 @@ const {
   ProcessOutput,
   os,
   path,
-  YAML
+  YAML,
+  registerGlobals
 } = lib
 export {
   chalk, fs,
@@ -22,5 +22,6 @@ export {
   ProcessOutput,
   os,
   path,
-  YAML
+  YAML,
+  registerGlobals
 }

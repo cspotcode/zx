@@ -1,3 +1,3 @@
-import {registerGlobals} from './index.js'
+const {registerGlobals} = require('./index.js')
 
 registerGlobals()

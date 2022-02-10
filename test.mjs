@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
-import path from 'path'
-import {glob} from './import.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -75,7 +73,7 @@ import {glob} from './import.mjs'
 
 { // Can use array as an argument
   try {
-    let files = ['./index.mjs', './zx.mjs', './package.json']
+    let files = ['./index.js', './zx.mjs', './package.json']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
@@ -165,7 +163,6 @@ import {glob} from './import.mjs'
   assert(typeof globby.isDynamicPattern === 'function')
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
-  deepEqual(await globby('*.mjs'), ['import.mjs', 'index.mjs', 'test.mjs', 'zx.mjs'])
   console.log(chalk.greenBright('globby available'))
 }
 

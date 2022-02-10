@@ -2,3 +2,5 @@
 /.idea/
 yarn.lock
 /index.js
+/index.js.map
+/index.d.ts

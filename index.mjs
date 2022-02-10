@@ -13,37 +13,25 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
+import * as globbyModule from 'globby'
 import os from 'os'
 import path from 'path'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
 import {createInterface} from 'readline'
-// import {default as nodeFetch} from 'node-fetch'
+import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import YAML from 'yaml'
 import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
-import asyncDeps from './async-deps.js'
 
 export {chalk, fs, os, path, YAML}
 export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
-
-export const globby = Object.assign(async function globby(...args) {
-  const {globbyModule} = await asyncDeps
+export const globby = Object.assign(function globby(...args) {
   return globbyModule.globby(...args)
-}, {
-  then(...args) {
-    return asyncInit.then(() => {delete globby.then; return globby}).then(...args)
-  }
-})
-let nodeFetch;
-const asyncInit = asyncDeps.then(({globbyModule, nodeFetchModule}) => {
-  Object.assign(globby, globbyModule)
-  nodeFetch = nodeFetchModule.default;
-})
-
+}, globbyModule)
 export const glob = globby
 const psTree = promisify(psTreeModule)
 
@@ -179,7 +167,6 @@ export async function fetch(url, init) {
       console.log('$', colorize(`fetch ${url}`))
     }
   }
-  await asyncInit;
   return nodeFetch(url, init)
 }
 

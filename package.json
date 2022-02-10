@@ -18,7 +18,7 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "build": "swc -o index.js index.mjs",
+    "build": "esbuild --bundle --platform=node --sourcemap --outfile=index.js index.mjs && api-extractor run",
     "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
@@ -26,26 +26,32 @@
     "@types/minimist": "^1.2.2",
     "@types/node": "^17.0",
     "@types/node-fetch": "^3.0.2",
+    "globby": "^13.1.1"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.19.4",
     "chalk": "^5.0.0",
+    "esbuild": "^0.14.21",
     "fs-extra": "^10.0.0",
-    "globby": "^13.1.1",
     "minimist": "^1.2.5",
     "node-fetch": "^3.2.0",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2",
     "yaml": "^1.10.2"
   },
-  "devDependencies": {
-    "@swc/cli": "^0.1.49",
-    "@swc/core": "^1.2.80"
-  },
   "files": [
     "*.mjs",
     "!index.mjs",
     "*.js",
-    "*.d.ts"
+    "*.js.map",
+    "*.d.ts",
+    "!index-src.d.ts"
   ],
   "repository": "cspotcode/zx",
   "author": "Anton Medvedev <anton@medv.io>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "volta": {
+    "node": "17.4.0",
+    "npm": "8.4.1"
+  }
 }
