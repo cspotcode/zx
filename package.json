@@ -46,7 +46,11 @@
     "*.d.ts",
     "!index-src.d.ts"
   ],
-  "repository": "cspotcode/zx",
+  "homepage": "https://github.com/cspotcode/zx#readme",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cspotcode/zx.git"
+  },
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0",
   "volta": {
