@@ -1,4 +1,7 @@
 module.exports = (async () => {
-  const globbyModule = await import('globby')
-  return {globbyModule}
+  const [globbyModule, nodeFetchModule] = await Promise.all([
+    import('globby'),
+    import('node-fetch')
+  ]);
+  return {globbyModule, nodeFetchModule}
 })()

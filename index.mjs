@@ -18,7 +18,7 @@ import path from 'path'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
 import {createInterface} from 'readline'
-import {default as nodeFetch} from 'node-fetch'
+// import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import YAML from 'yaml'
@@ -38,8 +38,10 @@ export const globby = Object.assign(async function globby(...args) {
     return asyncInit.then(() => {delete globby.then; return globby}).then(...args)
   }
 })
-const asyncInit = asyncDeps.then(({globbyModule}) => {
+let nodeFetch;
+const asyncInit = asyncDeps.then(({globbyModule, nodeFetchModule}) => {
   Object.assign(globby, globbyModule)
+  nodeFetch = nodeFetchModule.default;
 })
 
 export const glob = globby
@@ -177,6 +179,7 @@ export async function fetch(url, init) {
       console.log('$', colorize(`fetch ${url}`))
     }
   }
+  await asyncInit;
   return nodeFetch(url, init)
 }
 

@@ -21,7 +21,7 @@ import {createRequire} from 'module'
 import url from 'url'
 import {$, fetch, ProcessOutput, argv} from './import.mjs'
 
-import './globals.mjs'
+import './globals.js'
 
 try {
   if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {

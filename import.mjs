@@ -7,7 +7,10 @@ const {
   cd, question,
   fetch, sleep,
   nothrow, ProcessPromise,
-  ProcessOutput
+  ProcessOutput,
+  os,
+  path,
+  YAML
 } = lib
 export {
   chalk, fs,
@@ -16,5 +19,8 @@ export {
   cd, question,
   fetch, sleep,
   nothrow, ProcessPromise,
-  ProcessOutput
+  ProcessOutput,
+  os,
+  path,
+  YAML
 }
