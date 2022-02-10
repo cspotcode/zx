@@ -62,7 +62,8 @@
    */
   "bundledPackages": [
     "chalk",
-    "yaml"
+    "yaml",
+    "node-fetch"
   ],
 
   /**
