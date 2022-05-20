@@ -1,6 +1,6 @@
 # 🐚 zx
 
-> Fork of [`zx`](https://github.com/google/zx) with CommonJS support, so it can be used with `#!/usr/bin/env ts-node`
+> Fork of [`zx`](https://github.com/google/zx) with CommonJS support.
 
 ```js
 #!/usr/bin/env zx
@@ -70,7 +70,7 @@ without any imports.
 Or import globals explicitly (for better autocomplete in VS Code).
 
 ```js
-import 'zx/globals'
+import '@cspotcode/zx/globals'
 ```
 
 ### ``$`command` ``
@@ -392,7 +392,7 @@ Retries a command a few times. Will return after the first
 successful attempt, or will throw after specifies attempts count.
 
 ```js
-import {retry} from 'zx/experimental'
+import {retry} from '@cspotcode/zx/experimental'
 
 let {stdout} = await retry(5)`curl localhost`
 
@@ -405,7 +405,7 @@ let {stdout} = await retry(3, 500)`npm whoami`
 A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
 ```js
-import {echo} from 'zx/experimental'
+import {echo} from '@cspotcode/zx/experimental'
 
 let branch = await $`git branch --show-current`
 
@@ -419,7 +419,7 @@ echo('Current branch is', branch)
 Starts a simple CLI spinner, and returns `stop()` function.
 
 ```js
-import {startSpinner} from 'zx/experimental'
+import {startSpinner} from '@cspotcode/zx/experimental'
 
 let stop = startSpinner()
 await $`long-running command`
@@ -431,7 +431,7 @@ stop()
 Runs and sets a timeout for a cmd.
 
 ```js
-import {withTimeout} from 'zx/experimental'
+import {withTimeout} from '@cspotcode/zx/experimental'
 
 await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
@@ -484,9 +484,9 @@ zx docs/markdown.md
 ### TypeScript scripts
  
 ```ts
-import {$} from 'zx'
+import {$} from '@cspotcode/zx'
 // Or 
-import 'zx/globals'
+import '@cspotcode/zx/globals'
 
 void async function () {
   await $`ls -la`
@@ -573,7 +573,7 @@ jobs:
 You can build your very own custom zx version that best suits your needs.
 ```ts
 // index.js
-import {$} from 'zx'
+import {$} from '@cspotcode/zx'
 
 $.quote = () => {}
 $.extraFn = async () => {
@@ -585,7 +585,7 @@ $.extraFn = async () => {
 #!/usr/bin/env node
 
 import './index.js'
-import 'zx/cli'
+import '@cspotcode/zx/cli'
 
 // script.mjs
 await $.extraFn()

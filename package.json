@@ -10,7 +10,7 @@
       "require": "./src/index.js"
     },
     "./globals": "./src/globals.js",
-    "./experimental": "./src/experimental.mjs",
+    "./experimental": "./src/experimental.js",
     "./cli": "./zx.mjs",
     "./package.json": "./package.json"
   },
@@ -21,7 +21,7 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "build": "esbuild --bundle --platform=node --sourcemap --outfile=src/index.js src/index.mjs && api-extractor run",
+    "build": "esbuild --bundle --platform=node --sourcemap --outfile=src/index.js src/index.mjs && esbuild --bundle --platform=node --sourcemap --external:./index.js --outfile=src/experimental.js src/experimental.mjs && api-extractor run",
     "test": "node zx.mjs test/full.test.mjs",
     "test:cov": "c8 --reporter=html npm run test",
     "test:zx": "npm run test zx",
@@ -50,6 +50,7 @@
     "src",
     "*.mjs",
     "!src/index.mjs",
+    "!src/experimental.mjs",
     "*.js",
     "*.js.map",
     "*.d.ts",

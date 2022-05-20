@@ -4,4 +4,7 @@ yarn.lock
 /src/index.js
 /src/index.js.map
 /src/index.d.ts
+/src/experimental.js
+/src/experimental.js.map
+/src/experimental.d.ts
 coverage
