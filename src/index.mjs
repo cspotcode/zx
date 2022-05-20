@@ -14,11 +14,11 @@
 
 import fs from 'fs-extra'
 import * as globbyModule from 'globby'
-import os from 'os'
-import path from 'path'
-import {promisify, inspect} from 'util'
-import {spawn} from 'child_process'
-import {createInterface} from 'readline'
+import os from 'node:os'
+import path from 'node:path'
+import {promisify, inspect} from 'node:util'
+import {spawn} from 'node:child_process'
+import {createInterface} from 'node:readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
@@ -26,7 +26,7 @@ import YAML from 'yaml'
 import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
 
-export {chalk, fs, os, path, YAML}
+export {chalk, fs, os, path, YAML, which}
 export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
 export const globby = Object.assign(function globby(...args) {
@@ -46,17 +46,26 @@ export function registerGlobals() {
     glob,
     globby,
     nothrow,
+    quiet,
     os,
     path,
     question,
     sleep,
     YAML,
+    which,
   })
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix} = $
+  let {
+    verbose,
+    shell,
+    prefix,
+    spawn,
+    maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
+  } = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
+  let cwd = process.cwd()
 
   let cmd = pieces[0], i = 0
   while (i < args.length) {
@@ -73,66 +82,67 @@ export function $(pieces, ...args) {
   let promise = new ProcessPromise((...args) => [resolve, reject] = args)
 
   promise._run = () => {
-    if (promise.child) return
-    if (promise._prerun) promise._prerun()
-    if (verbose) {
+    if (promise.child) return // The _run() called from two places: then() and setTimeout().
+    if (promise._prerun) promise._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
+    if (verbose && !promise._quiet) {
       printCmd(cmd)
     }
 
     let child = spawn(prefix + cmd, {
-      cwd: process.cwd(),
+      cwd,
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
       windowsHide: true,
+      maxBuffer,
     })
 
-    child.on('exit', code => {
-      child.on('close', () => {
-        let output = new ProcessOutput({
-          code, stdout, stderr, combined,
-          message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
-        });
-        (code === 0 || promise._nothrow ? resolve : reject)(output)
-        promise._resolved = true
-      })
+    child.on('close', (code, signal) => {
+      let message = `${stderr || '\n'}    at ${__from}`
+      message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''}`
+      if (signal !== null) {
+        message += `\n    signal: ${signal}`
+      }
+      let output = new ProcessOutput({
+        code,
+        signal,
+        stdout,
+        stderr,
+        combined,
+        message,
+      });
+      (code === 0 || promise._nothrow ? resolve : reject)(output)
+      promise._resolved = true
     })
 
     let stdout = '', stderr = '', combined = ''
     let onStdout = data => {
-      if (verbose) process.stdout.write(data)
+      if (verbose && !promise._quiet) process.stdout.write(data)
       stdout += data
       combined += data
     }
     let onStderr = data => {
-      if (verbose) process.stderr.write(data)
+      if (verbose && !promise._quiet) process.stderr.write(data)
       stderr += data
       combined += data
     }
-    if (!promise._piped) child.stdout.on('data', onStdout)
-    child.stderr.on('data', onStderr)
+    if (!promise._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
+    child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
     promise.child = child
-    if (promise._postrun) promise._postrun()
+    if (promise._postrun) promise._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
   }
-  setTimeout(promise._run, 0) // Make sure all subprocesses started.
+  setTimeout(promise._run, 0) // Make sure all subprocesses are started, if not explicitly by await or then().
   return promise
 }
 
-$.verbose = !argv.quiet
-if (typeof argv.shell === 'string') {
-  $.shell = argv.shell
-  $.prefix = ''
-} else {
-  try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
-  } catch (e) {
-    $.prefix = '' // Bash not found, no prefix.
-  }
-}
-if (typeof argv.prefix === 'string') {
-  $.prefix = argv.prefix
-}
 $.quote = quote
+$.spawn = spawn
+$.verbose = true
+$.prefix = '' // Bash not found, no prefix.
+try {
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+} catch (e) {
+}
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
@@ -151,12 +161,14 @@ export async function question(query, options) {
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
+    terminal: true,
     completer,
   })
-  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
-  let answer = await question(query)
-  rl.close()
-  return answer
+
+  return new Promise((resolve) => rl.question(query ?? '', (answer) => {
+    rl.close()
+    resolve(answer)
+  }))
 }
 
 export async function fetch(url, init) {
@@ -175,9 +187,15 @@ export function nothrow(promise) {
   return promise
 }
 
+export function quiet(promise) {
+  promise._quiet = true
+  return promise
+}
+
 export class ProcessPromise extends Promise {
   child = undefined
   _nothrow = false
+  _quiet = false
   _resolved = false
   _inheritStdin = true
   _piped = false
@@ -249,14 +267,16 @@ export class ProcessPromise extends Promise {
 }
 
 export class ProcessOutput extends Error {
-  #code = 0
+  #code = null
+  #signal = null
   #stdout = ''
   #stderr = ''
   #combined = ''
 
-  constructor({code, stdout, stderr, combined, message}) {
+  constructor({code, signal, stdout, stderr, combined, message}) {
     super(message)
     this.#code = code
+    this.#signal = signal
     this.#stdout = stdout
     this.#stderr = stderr
     this.#combined = combined
@@ -278,11 +298,16 @@ export class ProcessOutput extends Error {
     return this.#code
   }
 
+  get signal() {
+    return this.#signal
+  }
+
   [inspect.custom]() {
     let stringify = (s, c) => s.length === 0 ? '\'\'' : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
+  signal: ${inspect(this.signal)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${(exitCodeInfo(this.exitCode) ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')') : '')}
 }`
   }

@@ -14,49 +14,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {basename, dirname, extname, join, parse, resolve} from 'path'
-import {tmpdir} from 'os'
 import fs from 'fs-extra'
-import {createRequire} from 'module'
-import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './import.mjs'
+import {createRequire} from 'node:module'
+import {tmpdir} from 'node:os'
+import {basename, dirname, extname, join, resolve} from 'node:path'
+import url from 'node:url'
+import {$, argv, fetch, ProcessOutput, registerGlobals} from './import.mjs'
 
 import './globals.js'
 
-try {
-  if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
-    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
-    process.exit(0)
+await async function main() {
+  registerGlobals()
+  $.verbose = !argv.quiet
+  if (typeof argv.shell === 'string') {
+    $.shell = argv.shell
   }
-  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
-  if (typeof firstArg === 'undefined' || firstArg === '-') {
-    let ok = await scriptFromStdin()
-    if (!ok) {
-      printUsage()
-      process.exit(2)
+  if (typeof argv.prefix === 'string') {
+    $.prefix = argv.prefix
+  }
+  if (argv.experimental) {
+    Object.assign(global, await import('./src/experimental.mjs'))
+  }
+  try {
+    if (['--version', '-v', '-V'].includes(process.argv[2])) {
+      console.log(createRequire(import.meta.url)('./package.json').version)
+      return process.exitCode = 0
     }
-  } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
-    await scriptFromHttp(firstArg)
-  } else {
-    let filepath
-    if (firstArg.startsWith('/')) {
-      filepath = firstArg
-    } else if (firstArg.startsWith('file:///')) {
-      filepath = url.fileURLToPath(firstArg)
+    let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
+    if (typeof firstArg === 'undefined' || firstArg === '-') {
+      let ok = await scriptFromStdin()
+      if (!ok) {
+        printUsage()
+        return process.exitCode = 2
+      }
+    } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
+      await scriptFromHttp(firstArg)
     } else {
-      filepath = resolve(firstArg)
+      let filepath
+      if (firstArg.startsWith('/')) {
+        filepath = firstArg
+      } else if (firstArg.startsWith('file:///')) {
+        filepath = url.fileURLToPath(firstArg)
+      } else {
+        filepath = resolve(firstArg)
+      }
+      await importPath(filepath)
     }
-    await importPath(filepath)
+  } catch (p) {
+    if (p instanceof ProcessOutput) {
+      console.error('Error: ' + p.message)
+      return process.exitCode = 1
+    } else {
+      throw p
+    }
   }
-
-} catch (p) {
-  if (p instanceof ProcessOutput) {
-    console.error('Error: ' + p.message)
-    process.exit(1)
-  } else {
-    throw p
-  }
-}
+}()
 
 async function scriptFromStdin() {
   let script = ''
@@ -101,10 +113,15 @@ async function writeAndImport(script, filepath, origin = filepath) {
 
 async function importPath(filepath, origin = filepath) {
   let ext = extname(filepath)
+
   if (ext === '') {
+    let tmpFilename = fs.existsSync(`${filepath}.mjs`) ?
+      `${basename(filepath)}-${Math.random().toString(36).substr(2)}.mjs` :
+      `${basename(filepath)}.mjs`
+
     return await writeAndImport(
       await fs.readFile(filepath),
-      join(dirname(filepath), basename(filepath) + '.mjs'),
+      join(dirname(filepath), tmpFilename),
       origin,
     )
   }
@@ -191,10 +208,12 @@ function printUsage() {
 
  Usage:
    zx [options] <script>
- 
+
  Options:
    --quiet            : don't echo commands
    --shell=<path>     : custom shell binary
    --prefix=<command> : prefix all commands
+   --experimental     : enable new api proposals
+   --version, -v      : print current zx version
 `)
 }
