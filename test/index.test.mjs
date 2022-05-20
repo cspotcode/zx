@@ -80,9 +80,7 @@ test('The toString() is called on arguments', async () => {
 
 test('Can use array as an argument', async () => {
   try {
-    let files = ['./index.js', './zx.mjs', './package.json']
-    // TODO origin/main does this list instead
-    // let files = ['./zx.mjs', './test/index.test.mjs']
+    let files = ['./zx.mjs', './test/index.test.mjs']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
@@ -291,6 +289,6 @@ test('which available', async () => {
 
 test('require() is working in ESM', async () => {
   let data = require('../package.json')
-  assert.equal(data.name, 'zx')
-  assert.equal(data, require('zx/package.json'))
+  assert.equal(data.name, '@cspotcode/zx')
+  assert.equal(data, require('@cspotcode/zx/package.json'))
 })

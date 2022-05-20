@@ -1,4 +1,6 @@
 import * as lib from './index.js' 
+// Note: this file is almost certainly unnecessary, because node's
+// named export detection works well with esbuild's output.
 const {
   chalk, fs,
   argv, globby,
