@@ -2,7 +2,7 @@
   "name": "@cspotcode/zx",
   "version": "5.0.3",
   "description": "A tool for writing better scripts.",
-  "main": "src/index.mjs",
+  "main": "src/index.js",
   "types": "src/index.d.ts",
   "exports": {
     ".": {
@@ -49,14 +49,10 @@
     "which": "^2.0.2"
   },
   "files": [
-    "src",
-    "*.mjs",
-    "!src/index.mjs",
-    "!src/experimental.mjs",
-    "*.js",
-    "*.js.map",
-    "*.d.ts",
-    "!src/index-src.d.ts"
+    "/src",
+    "/zx.mjs",
+    "!/src/index.mjs",
+    "!/src/experimental.mjs"
   ],
   "homepage": "https://github.com/cspotcode/zx#readme",
   "repository": {
