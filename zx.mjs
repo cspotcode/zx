@@ -19,7 +19,7 @@ import {createRequire} from 'node:module'
 import {tmpdir} from 'node:os'
 import {basename, dirname, extname, join, resolve} from 'node:path'
 import url from 'node:url'
-import {$, argv, fetch, ProcessOutput, registerGlobals} from './import.mjs'
+import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/import.mjs'
 
 import './globals.js'
 

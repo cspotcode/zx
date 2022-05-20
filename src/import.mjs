@@ -10,7 +10,9 @@ const {
   os,
   path,
   YAML,
-  registerGlobals
+  registerGlobals,
+  quiet,
+  which
 } = lib
 export {
   chalk, fs,
@@ -23,5 +25,7 @@ export {
   os,
   path,
   YAML,
-  registerGlobals
+  registerGlobals,
+  quiet,
+  which
 }

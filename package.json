@@ -6,8 +6,8 @@
   "types": "src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./import.mjs",
-      "require": "./index.js"
+      "import": "./src/import.mjs",
+      "require": "./src/index.js"
     },
     "./globals": "./src/globals.js",
     "./experimental": "./src/experimental.mjs",
@@ -21,7 +21,7 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "build": "esbuild --bundle --platform=node --sourcemap --outfile=index.js index.mjs && api-extractor run",
+    "build": "esbuild --bundle --platform=node --sourcemap --outfile=src/index.js src/index.mjs && api-extractor run",
     "test": "node zx.mjs test/full.test.mjs",
     "test:cov": "c8 --reporter=html npm run test",
     "test:zx": "npm run test zx",
@@ -49,11 +49,11 @@
   "files": [
     "src",
     "*.mjs",
-    "!index.mjs",
+    "!src/index.mjs",
     "*.js",
     "*.js.map",
     "*.d.ts",
-    "!index-src.d.ts"
+    "!src/index-src.d.ts"
   ],
   "homepage": "https://github.com/cspotcode/zx#readme",
   "repository": {

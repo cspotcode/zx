@@ -1,7 +1,7 @@
 /node_modules/
 package-lock.json
 yarn.lock
-/index.js
-/index.js.map
-/index.d.ts
+/src/index.js
+/src/index.js.map
+/src/index.d.ts
 coverage
