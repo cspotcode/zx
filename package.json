@@ -1,6 +1,6 @@
 {
   "name": "@cspotcode/zx",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "A tool for writing better scripts.",
   "main": "src/index.js",
   "types": "src/index.d.ts",
