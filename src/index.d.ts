@@ -100,7 +100,7 @@ declare module '@cspotcode/zx/globals' {
     question,
     sleep,
     which as _which,
-  } from 'zx'
+  } from '@cspotcode/zx'
 
   global {
     var $: $
@@ -122,7 +122,7 @@ declare module '@cspotcode/zx/globals' {
 }
 
 declare module '@cspotcode/zx/experimental' {
-  import {ZxTemplate} from 'zx'
+  import {ZxTemplate} from '@cspotcode/zx'
 
   interface Echo {
     (pieces: TemplateStringsArray, ...args: any[]): void
