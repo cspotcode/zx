@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-declare module 'zx' {
+declare module '@cspotcode/zx' {
   import {ChildProcess, spawn} from 'node:child_process'
   import {Readable, Writable} from 'node:stream'
   import * as _fs from 'fs-extra'
@@ -85,7 +85,7 @@ declare module 'zx' {
   export const which: typeof _which
 }
 
-declare module 'zx/globals' {
+declare module '@cspotcode/zx/globals' {
   import {
     $,
     argv as _argv,
@@ -121,7 +121,7 @@ declare module 'zx/globals' {
   }
 }
 
-declare module 'zx/experimental' {
+declare module '@cspotcode/zx/experimental' {
   import {ZxTemplate} from 'zx'
 
   interface Echo {
