@@ -289,6 +289,6 @@ test('which available', async () => {
 
 test('require() is working in ESM', async () => {
   let data = require('../package.json')
-  assert.equal(data.name, 'zx')
-  assert.equal(data, require('zx/package.json'))
+  assert.equal(data.name, '@cspotcode/zx')
+  assert.equal(data, require('@cspotcode/zx/package.json'))
 })

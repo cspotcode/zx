@@ -1,4 +1,8 @@
 /node_modules/
 package-lock.json
 yarn.lock
+/src/index.js
+/src/index.js.map
+/src/experimental.js
+/src/experimental.js.map
 coverage

@@ -19,8 +19,9 @@ import {createRequire} from 'node:module'
 import {tmpdir} from 'node:os'
 import {basename, dirname, extname, join, resolve} from 'node:path'
 import url from 'node:url'
+import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.js'
 
-import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
+import './src/globals.js'
 
 await async function main() {
   registerGlobals()
